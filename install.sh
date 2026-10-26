@@ -85,12 +85,23 @@ if ((PLAN)); then printf 'app=%s\nfamilia=%s\ngestor=%s\npython_min=3.11\nproxy=
 if [[ "$TLS" == public ]]; then
  [[ "$ADDRESS" =~ ^[A-Za-z0-9][A-Za-z0-9.-]+\.[A-Za-z]{2,}$ && "$EMAIL" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+$ && "$HTTPS_PORT" == 443 ]] || fail 'TLS público requiere dominio, --email y --https-port 443'
 fi
+NEED_PACKAGES=0
+for binary in curl tar openssl flock ss getent useradd groupadd runuser sha256sum sha512sum; do
+ command -v "$binary" >/dev/null || NEED_PACKAGES=1
+done
+FOUND_PYTHON=0
+for candidate in python3 python3.13 python3.12 python3.11; do
+ if command -v "$candidate" >/dev/null && "$candidate" -c 'import sys,venv,ensurepip,ssl,sqlite3; assert sys.version_info >= (3,11)' 2>/dev/null; then FOUND_PYTHON=1; break; fi
+done
+if ((NEED_PACKAGES || !FOUND_PYTHON)); then
 case "$MANAGER" in
- apt) export DEBIAN_FRONTEND=noninteractive; apt-get update; apt-get install -y python3 python3-venv python3-pip ca-certificates curl tar openssl util-linux iproute2;;
+ apt) export DEBIAN_FRONTEND=noninteractive; apt-get update; apt-get install -y python3 python3-venv ca-certificates curl tar openssl util-linux iproute2;;
  dnf) dnf install -y python3 ca-certificates curl tar openssl util-linux iproute shadow-utils; if ! python3 -c 'import sys; assert sys.version_info >= (3,11)' 2>/dev/null; then dnf install -y python3.11 python3.11-pip; fi;;
  zypper) zypper --non-interactive install python311 python311-pip ca-certificates curl tar openssl util-linux iproute2 shadow;;
  pacman) pacman -S --needed --noconfirm python python-pip ca-certificates curl tar openssl util-linux iproute2 shadow;;
 esac
+else echo "Dependencias del sistema ya disponibles; no se modifica el gestor de paquetes."
+fi
 PYTHON=
 for candidate in python3 python3.13 python3.12 python3.11; do
  if command -v "$candidate" >/dev/null && "$candidate" -c 'import sys; assert sys.version_info >= (3,11)' 2>/dev/null; then PYTHON=$(command -v "$candidate"); break; fi
