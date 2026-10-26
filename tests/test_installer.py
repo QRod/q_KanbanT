@@ -11,7 +11,7 @@ class InstallerTests(unittest.TestCase):
   subprocess.run(['bash','-n',str(script)],check=True)
   for distro,like,manager in [('ubuntu','debian','apt'),('zorin','ubuntu debian','apt'),('rocky','rhel fedora','dnf'),('fedora','','dnf'),('opensuse-leap','suse opensuse','zypper'),('arch','','pacman')]:
    with self.subTest(distro=distro),tempfile.TemporaryDirectory() as folder:
-    release=Path(folder)/'os-release';release.write_text(f'ID={distro}\nID_LIKE="{like}"\n')
+    release=Path(folder)/'os-release';release.write_text(f'ID={distro}\nID_LIKE="{like}"\nVERSION="24.04"\n')
     env=dict(os.environ,Q_INSTALL_OS_RELEASE=str(release))
     output=subprocess.check_output(['bash',str(script),'--plan'],env=env,text=True)
     self.assertIn('gestor='+manager,output)

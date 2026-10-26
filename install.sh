@@ -65,14 +65,13 @@ done
 fail() { echo "ERROR: $*" >&2; exit 1; }
 [[ $(uname -s) == Linux || $PLAN == 1 ]] || fail 'Se requiere Linux'
 [[ -r ${Q_INSTALL_OS_RELEASE:-/etc/os-release} ]] || fail 'No se encontró os-release'
-source "${Q_INSTALL_OS_RELEASE:-/etc/os-release}"
-family=" ${ID:-} ${ID_LIKE:-} "
+family=$(source "${Q_INSTALL_OS_RELEASE:-/etc/os-release}"; printf ' %s %s ' "${ID:-}" "${ID_LIKE:-}")
 case "$family" in
  *debian*|*ubuntu*|*zorin*|*linuxmint*) MANAGER=apt;;
  *rhel*|*fedora*|*centos*|*rocky*|*almalinux*|*ol*) MANAGER=dnf;;
  *suse*|*opensuse*) MANAGER=zypper;;
  *arch*|*manjaro*|*endeavouros*) MANAGER=pacman;;
- *) fail "Familia no soportada: ${ID:-desconocida}. Usa una instalación manual con Python 3.11+ y systemd.";;
+ *) fail "Familia no soportada: $family. Usa una instalación manual con Python 3.11+ y systemd.";;
 esac
 if ((PLAN)); then printf 'app=%s\nfamilia=%s\ngestor=%s\npython_min=3.11\nproxy=%s\ntls=%s\n' "$APP" "$family" "$MANAGER" "$PROXY" "$TLS"; exit 0; fi
 [[ $EUID == 0 ]] || fail 'Ejecuta con sudo bash install.sh'
