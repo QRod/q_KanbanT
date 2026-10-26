@@ -1,0 +1,22 @@
+name: Verify Kanban
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '22'
+      - run: npm test
+      - run: npm run check
+      - run: bash -n install.sh
+      - run: python scripts/package_release.py v0.4.0 --output "${{ runner.temp }}/release"

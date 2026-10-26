@@ -1,0 +1,11 @@
+{
+  "name": "q-kanbant",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "python3 server.py",
+    "test": "node --test && python3 -m unittest discover -s tests -p \"test_*.py\"",
+    "check": "node --check src/app.js && node --check src/board.js"
+  }
+}

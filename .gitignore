@@ -1,0 +1,21 @@
+.data/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Configuración de instalaciones y artefactos
+._*
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.sqlite*
+*.db*
+*.zip
+*.tar.gz
+dist/
+validation/
+backups/
+secrets/
+node_modules/
