@@ -272,6 +272,14 @@ fi
 KEY_DIRECTIVE=
 if [[ "$APP" == q-inv ]]; then
  if [[ ! -f /etc/q-inv/credentials.key ]]; then
+  if [[ -f "$DATA/$DB_NAME" ]] && "$PYTHON" - "$DATA/$DB_NAME" <<'PY_KEY_CHECK'
+import sqlite3,sys
+with sqlite3.connect(sys.argv[1]) as db:
+ table=db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='server_credentials'").fetchone()
+ exists=table and db.execute('SELECT 1 FROM server_credentials LIMIT 1').fetchone()
+raise SystemExit(0 if exists else 1)
+PY_KEY_CHECK
+  then fail 'Hay credenciales cifradas: restaura la clave original antes de instalar'; fi
   "$RELEASE/.venv/bin/python" -c 'import os;from cryptography.fernet import Fernet;fd=os.open("/etc/q-inv/credentials.key",os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600);os.write(fd,Fernet.generate_key());os.close(fd)'
  fi
  SYSTEMD_VERSION=$(systemctl --version | head -n 1 | awk '{print $2}')
