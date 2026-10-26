@@ -19,4 +19,4 @@ jobs:
       - run: npm test
       - run: npm run check
       - run: bash -n install.sh
-      - run: python scripts/package_release.py v0.4.0 --output "${{ runner.temp }}/release"
+      - run: python scripts/package_release.py v0.4.1 --output "${{ runner.temp }}/release"

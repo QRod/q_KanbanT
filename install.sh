@@ -381,7 +381,9 @@ if [[ "$PROXY" == caddy ]]; then
  systemctl restart "$APP-proxy"
  READY=0
  for _ in {1..30}; do
-  if curl -kfsS --resolve "$AUTHORITY:$HTTPS_PORT:127.0.0.1" "https://$AUTHORITY:$HTTPS_PORT/" >/dev/null; then READY=1; break; fi
+  HEALTH_RESOLVE=()
+ if ! "$PYTHON" -c 'import ipaddress,sys;ipaddress.ip_address(sys.argv[1])' "$ADDRESS" 2>/dev/null; then HEALTH_RESOLVE=(--resolve "$AUTHORITY:$HTTPS_PORT:127.0.0.1"); fi
+ if curl -kfsS "${HEALTH_RESOLVE[@]}" "https://$AUTHORITY:$HTTPS_PORT/" >/dev/null; then READY=1; break; fi
   sleep 1
  done
  ((READY))
